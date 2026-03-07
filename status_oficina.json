@@ -18,5 +18,10 @@
         "Data": "07/03/2026",
         "Hora": "12:00",
         "Status": "Ocupado"
+    },
+    {
+        "Data": "07/03/2026",
+        "Hora": "11:20",
+        "Status": "Livre"
     }
 ]
