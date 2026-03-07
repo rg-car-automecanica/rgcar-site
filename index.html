@@ -50,7 +50,15 @@
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: 1.5rem;
             box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.9);
+            /* Barra de rolagem adicionada aqui */
+            max-height: 500px;
+            overflow-y: auto;
         }
+
+        /* Estilização da barra de rolagem para ficar discreta */
+        .list-card::-webkit-scrollbar { width: 6px; }
+        .list-card::-webkit-scrollbar-track { background: transparent; }
+        .list-card::-webkit-scrollbar-thumb { background: rgba(206, 17, 17, 0.3); border-radius: 10px; }
 
         .status-pill {
             font-size: 0.7rem;
@@ -112,7 +120,7 @@
             </div>
         </div>
 
-        <div class="list-card overflow-hidden">
+        <div class="list-card">
             <div id="lista-horarios" class="divide-y divide-white/5">
                 <div class="p-10 text-center text-zinc-500">
                     <i class="fa-solid fa-circle-notch animate-spin text-2xl mb-4"></i>
@@ -139,17 +147,32 @@
     </footer>
 
     <script>
-        const NUMERO_ZAP = "5584987171946"; // Formato internacional para o link
+        const NUMERO_ZAP = "5584987171946"; 
 
         async function carregarAgenda() {
             try {
                 const response = await fetch('status_oficina.json');
                 if (!response.ok) throw new Error();
                 const dados = await response.json();
+                
+                // Obtém a data de hoje no formato DD/MM/YYYY
+                const hoje = new Date().toLocaleDateString('pt-BR');
+                
+                // Filtra apenas os horários que batem com a data de hoje
+                const horariosHoje = dados.filter(item => item.Data === hoje);
+
                 const container = document.getElementById('lista-horarios');
                 container.innerHTML = '';
 
-                dados.forEach(item => {
+                if (horariosHoje.length === 0) {
+                    container.innerHTML = '<div class="p-10 text-center text-zinc-600 font-bold text-xs tracking-widest uppercase">Nenhum horário definido para hoje</div>';
+                    return;
+                }
+
+                // Ordena por hora para não ficar bagunçado
+                horariosHoje.sort((a, b) => a.Hora.localeCompare(b.Hora));
+
+                horariosHoje.forEach(item => {
                     const statusClass = item.Status.toLowerCase();
                     const div = document.createElement('div');
                     div.className = 'p-6 flex justify-between items-center hover:bg-white/[0.02] transition-all';
@@ -163,18 +186,16 @@
                     container.appendChild(div);
                 });
             } catch (error) {
-                document.getElementById('lista-horarios').innerHTML = '<div class="p-10 text-center text-zinc-600 font-bold text-xs tracking-widest">NENHUM HORÁRIO DEFINIDO</div>';
+                document.getElementById('lista-horarios').innerHTML = '<div class="p-10 text-center text-zinc-600 font-bold text-xs tracking-widest">ERRO AO SINCRONIZAR</div>';
             }
         }
 
         function copiarEAbrirZap() {
             const btnLabel = document.getElementById('textoBotao');
-            const originalText = btnLabel.innerText;
+            const originalText = "Agendar: 84 98717-1946";
 
-            // Copia o número para o teclado do cliente
             navigator.clipboard.writeText("84987171946").then(() => {
                 btnLabel.innerText = "NÚMERO COPIADO!";
-                
                 setTimeout(() => {
                     window.location.href = `https://wa.me/${NUMERO_ZAP}?text=Olá RG CAR! Vi os horários no site e quero agendar um serviço.`;
                     setTimeout(() => { btnLabel.innerText = originalText; }, 2000);
