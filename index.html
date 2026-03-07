@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status da Oficina | RG CAR - Especialista Automotivo</title>
+    
+    <style>
+        body { background-color: #000000; color: #ffffff; }
+    </style>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-red: #ce1111;
+            --primary-green: #22c55e;
+            --dark-surface: rgba(15, 15, 15, 0.95);
+            --dark-bg: #000000;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--dark-bg); 
+            color: #ffffff;
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            background-image: 
+                linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.9)),
+                url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=2000');
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .header-container { padding-top: 4rem; padding-bottom: 2rem; text-align: center; }
+        .brand-name { font-size: clamp(3rem, 10vw, 5rem); font-weight: 900; font-style: italic; letter-spacing: -4px; line-height: 0.9; margin-bottom: 1rem; text-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .brand-rg { color: #ffffff; }
+        .brand-car { color: var(--primary-red); }
+
+        .form-card {
+            background-color: var(--dark-surface);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 1.5rem;
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.9);
+        }
+
+        .status-badge {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 0.5rem 1.25rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .dot-pulse { width: 10px; height: 10px; border-radius: 50%; }
+        .dot-online { background-color: #22c55e; box-shadow: 0 0 10px #22c55e; animation: pulse 2s infinite; }
+        .dot-offline { background-color: #ef4444; box-shadow: 0 0 10px #ef4444; }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            70% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        /* Estilo dos Cards de Horário */
+        .horario-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: transform 0.2s;
+        }
+
+        .horario-item:hover { transform: scale(1.02); }
+        .status-livre { background: rgba(34, 197, 94, 0.1); border-left: 4px solid var(--primary-green); }
+        .status-ocupado { background: rgba(206, 17, 17, 0.1); border-left: 4px solid var(--primary-red); }
+        
+        .hora-texto { font-weight: 800; font-size: 1.2rem; font-style: italic; }
+        .badge-info { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px; border-radius: 6px; }
+        .bg-livre { background: var(--primary-green); color: black; }
+        .bg-ocupado { background: var(--primary-red); color: white; }
+    </style>
+</head>
+<body class="pb-20">
+
+    <header class="header-container px-6">
+        <div class="max-w-5xl mx-auto">
+            <div class="mb-6 inline-block bg-red-600/10 p-4 rounded-full border border-red-600/20">
+                <i class="fa-solid fa-screwdriver-wrench text-3xl text-red-600"></i>
+            </div>
+            <h1 class="brand-name">
+                <span class="brand-rg">RG</span> <span class="brand-car">CAR</span>
+            </h1>
+            <p class="text-zinc-400 font-medium tracking-wide">AUTO MECÂNICA</p>
+        </div>
+    </header>
+
+    <main class="max-w-xl mx-auto px-6 mt-2 relative">
+        <div class="flex items-center justify-between mb-8 px-2">
+            <div>
+                <h2 class="text-xl font-black text-white uppercase tracking-tighter italic">Disponibilidade</h2>
+                <div class="h-1 w-16 bg-red-600 mt-1"></div>
+            </div>
+            <div id="statusContainer" class="status-badge">
+                <span id="statusDot" class="dot-pulse"></span>
+                <span id="statusText" class="text-white text-[11px] font-black uppercase tracking-widest">Verificando...</span>
+            </div>
+        </div>
+
+        <div class="form-card p-6 md:p-8">
+            <div id="container-agenda" class="space-y-2">
+                <div class="text-center py-10">
+                    <i class="fa-solid fa-circle-notch animate-spin text-red-600 text-2xl mb-4"></i>
+                    <p class="text-zinc-500 uppercase text-xs font-bold tracking-widest">Sincronizando com a oficina...</p>
+                </div>
+            </div>
+            
+            <p class="text-[10px] text-zinc-600 text-center mt-8 uppercase font-bold tracking-widest">
+                Para agendar, entre em contacto via WhatsApp
+            </p>
+        </div>
+    </main>
+
+    <footer class="mt-20 py-10 text-center bg-black/80 border-t border-white/5">
+        <p class="text-zinc-500 text-[9px] uppercase tracking-[10px] font-black mb-2">RG CAR MECÂNICA AUTOMOTIVA</p>
+        <div class="flex flex-col md:flex-row justify-center items-center gap-4 text-zinc-400 text-sm mt-4">
+            <span class="flex items-center"><i class="fa-solid fa-location-dot text-red-600 mr-2"></i> Rua Oeste Reffesa Nº 8</span>
+            <span class="flex items-center"><i class="fa-solid fa-clock text-red-600 mr-2"></i> Seg - Sáb</span>
+        </div>
+    </footer>
+
+    <script>
+        // Lógica de Oficina Aberta/Fechada (Mantida)
+        function atualizarStatusOficina() {
+            const agora = new Date();
+            const diaSemana = agora.getDay();
+            const hora = agora.getHours();
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            let aberto = false;
+
+            if (diaSemana >= 1 && diaSemana <= 5) {
+                if (hora >= 8 && hora < 18) aberto = true;
+            } else if (diaSemana === 6) {
+                if (hora >= 8 && hora < 12) aberto = true;
+            }
+
+            if (aberto) {
+                dot.className = 'dot-pulse dot-online';
+                text.innerText = 'Oficina Aberta';
+                text.style.color = '#22c55e';
+            } else {
+                dot.className = 'dot-pulse dot-offline';
+                text.innerText = 'Oficina Fechada';
+                text.style.color = '#ef4444';
+            }
+        }
+
+        // NOVA LÓGICA: Ler o JSON do seu executável
+        async function carregarAgenda() {
+            const container = document.getElementById('container-agenda');
+            try {
+                // Tenta ler o arquivo que o seu EXE envia para o servidor
+                const response = await fetch('status_oficina.json');
+                const dados = await response.json();
+                
+                container.innerHTML = ''; // Limpa o carregando
+
+                if (dados.agenda.length === 0) {
+                    container.innerHTML = '<p class="text-center text-zinc-500 py-10">Nenhum horário definido para hoje.</p>';
+                    return;
+                }
+
+                dados.agenda.forEach(item => {
+                    const isLivre = item.status.toLowerCase() === 'livre';
+                    const classeCard = isLivre ? 'status-livre' : 'status-ocupado';
+                    const classeBadge = isLivre ? 'bg-livre' : 'bg-ocupado';
+                    
+                    container.innerHTML += `
+                        <div class="horario-item ${classeCard}">
+                            <div class="flex flex-col">
+                                <span class="text-[10px] text-zinc-500 uppercase font-black tracking-tighter">${item.data || 'Hoje'}</span>
+                                <span class="hora-texto text-white">${item.hora}</span>
+                            </div>
+                            <span class="badge-info ${classeBadge}">${item.status}</span>
+                        </div>
+                    `;
+                });
+
+            } catch (error) {
+                console.error("Erro ao carregar:", error);
+                container.innerHTML = '<p class="text-center text-red-500 py-10 font-bold">ERRO DE CONEXÃO<br><span class="text-[10px] text-zinc-600">Certifique-se que o status_oficina.json está no servidor.</span></p>';
+            }
+        }
+
+        window.onload = function() {
+            atualizarStatusOficina();
+            carregarAgenda();
+            setInterval(atualizarStatusOficina, 60000);
+            setInterval(carregarAgenda, 30000); // Atualiza a lista a cada 30 segundos
+        };
+    </script>
+</body>
+</html>
