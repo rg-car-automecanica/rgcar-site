@@ -6,17 +6,17 @@
     },
     {
         "Data": "09/03/2026",
-        "Hora": "15:30",
-        "Status": "Livre"
-    },
-    {
-        "Data": "09/03/2026",
         "Hora": "14:00",
         "Status": "Ocupado"
     },
     {
         "Data": "09/03/2026",
         "Hora": "15:00",
+        "Status": "Ocupado"
+    },
+    {
+        "Data": "09/03/2026",
+        "Hora": "16:00",
         "Status": "Ocupado"
     }
 ]
