@@ -113,7 +113,7 @@
     <main class="max-w-2xl mx-auto px-6 mt-2 relative">
         <div class="flex items-center justify-between mb-8 px-2">
             <div>
-                <h2 class="text-xl font-black text-white uppercase tracking-tighter italic">Status da Agenda</h2>
+                <h2 id="tituloAgenda" class="text-xl font-black text-white uppercase tracking-tighter italic">Status da Agenda</h2>
                 <div class="h-1 w-16 bg-red-600 mt-1"></div>
             </div>
             <div id="statusContainer" class="status-badge">
@@ -153,25 +153,37 @@
 
         async function carregarAgenda() {
             try {
-                // ADICIONADO ?v=TIMESTAMP PARA EVITAR CACHE DO NAVEGADOR
                 const response = await fetch('status_oficina.json?v=' + new Date().getTime());
                 if (!response.ok) throw new Error();
                 const dados = await response.json();
                 
-                const hoje = new Date().toLocaleDateString('pt-BR');
-                const horariosHoje = dados.filter(item => item.Data === hoje);
+                const agora = new Date();
+                const horaAtual = agora.getHours();
+                let dataParaExibir = new Date();
+
+                // SE PASSAR DAS 18H, MUDA PARA O DIA SEGUINTE
+                if (horaAtual >= 18) {
+                    dataParaExibir.setDate(agora.getDate() + 1);
+                    document.getElementById('tituloAgenda').innerText = "Agenda de Amanhã";
+                } else {
+                    document.getElementById('tituloAgenda').innerText = "Agenda de Hoje";
+                }
+
+                const dataFormatada = dataParaExibir.toLocaleDateString('pt-BR');
+                const horariosFiltrados = dados.filter(item => item.Data === dataFormatada);
 
                 const container = document.getElementById('lista-horarios');
                 container.innerHTML = '';
 
-                if (horariosHoje.length === 0) {
-                    container.innerHTML = '<div class="p-10 text-center text-zinc-600 font-bold text-xs tracking-widest uppercase">Nenhum horário definido para hoje</div>';
+                if (horariosFiltrados.length === 0) {
+                    const msg = horaAtual >= 18 ? "Nenhum horário definido para amanhã" : "Nenhum horário definido para hoje";
+                    container.innerHTML = `<div class="p-10 text-center text-zinc-600 font-bold text-xs tracking-widest uppercase">${msg}</div>`;
                     return;
                 }
 
-                horariosHoje.sort((a, b) => a.Hora.localeCompare(b.Hora));
+                horariosFiltrados.sort((a, b) => a.Hora.localeCompare(b.Hora));
 
-                horariosHoje.forEach(item => {
+                horariosFiltrados.forEach(item => {
                     const statusClass = item.Status.toLowerCase();
                     const div = document.createElement('div');
                     div.className = 'p-6 flex justify-between items-center hover:bg-white/[0.02] transition-all';
@@ -215,7 +227,6 @@
         window.onload = () => {
             carregarAgenda();
             atualizarStatusOficina();
-            // ATUALIZAÇÃO EM TEMPO REAL (CADA 10 SEGUNDOS)
             setInterval(carregarAgenda, 10000);
             setInterval(atualizarStatusOficina, 60000);
         };
