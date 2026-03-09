@@ -158,16 +158,24 @@
                 const dados = await response.json();
                 
                 const agora = new Date();
+                const diaSemana = agora.getDay(); // 0 = Domingo, 6 = Sábado
                 const horaAtual = agora.getHours();
                 let dataParaExibir = new Date();
+                let textoTitulo = "Agenda de Hoje";
 
-                // SE PASSAR DAS 18H, MUDA PARA O DIA SEGUINTE
-                if (horaAtual >= 18) {
+                // REGRA PARA SÁBADO APÓS 12H OU DOMINGO -> MOSTRAR SEGUNDA-FEIRA
+                if ((diaSemana === 6 && horaAtual >= 12) || diaSemana === 0) {
+                    let diasParaSomar = (diaSemana === 6) ? 2 : 1;
+                    dataParaExibir.setDate(agora.getDate() + diasParaSomar);
+                    textoTitulo = "Agenda de Segunda";
+                } 
+                // REGRA PARA DIAS ÚTEIS APÓS AS 18H -> MOSTRAR AMANHÃ
+                else if (horaAtual >= 18) {
                     dataParaExibir.setDate(agora.getDate() + 1);
-                    document.getElementById('tituloAgenda').innerText = "Agenda de Amanhã";
-                } else {
-                    document.getElementById('tituloAgenda').innerText = "Agenda de Hoje";
+                    textoTitulo = "Agenda de Amanhã";
                 }
+
+                document.getElementById('tituloAgenda').innerText = textoTitulo;
 
                 const dataFormatada = dataParaExibir.toLocaleDateString('pt-BR');
                 const horariosFiltrados = dados.filter(item => item.Data === dataFormatada);
@@ -176,7 +184,7 @@
                 container.innerHTML = '';
 
                 if (horariosFiltrados.length === 0) {
-                    const msg = horaAtual >= 18 ? "Nenhum horário definido para amanhã" : "Nenhum horário definido para hoje";
+                    const msg = `Nenhum horário definido para ${dataParaExibir.toLocaleDateString('pt-BR', {weekday: 'long'})}`;
                     container.innerHTML = `<div class="p-10 text-center text-zinc-600 font-bold text-xs tracking-widest uppercase">${msg}</div>`;
                     return;
                 }
@@ -227,6 +235,7 @@
         window.onload = () => {
             carregarAgenda();
             atualizarStatusOficina();
+            // Atualiza agenda a cada 10 segundos e status da oficina a cada 1 minuto
             setInterval(carregarAgenda, 10000);
             setInterval(atualizarStatusOficina, 60000);
         };
