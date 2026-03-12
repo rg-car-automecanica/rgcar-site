@@ -9,10 +9,6 @@
     
     <title>Horários | RG CAR - Especialista Automotivo</title>
     
-    <style>
-        body { background-color: #000000; color: #ffffff; }
-    </style>
-
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -69,6 +65,8 @@
             border-radius: 999px;
             text-transform: uppercase;
             letter-spacing: 1px;
+            min-width: 80px;
+            text-align: center;
         }
 
         .bg-livre { background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.2); }
@@ -188,16 +186,29 @@
 
                 horariosFiltrados.sort((a, b) => a.Hora.localeCompare(b.Hora));
 
-                // LÓGICA DE INTELIGÊNCIA: Agrupar blocos OCUPADOS
+                // LÓGICA DE INTELIGÊNCIA: Agrupar blocos OCUPADOS respeitando o almoço e intervalos
                 const itensProcessados = [];
                 let blocoOcupado = null;
 
                 horariosFiltrados.forEach((item, index) => {
-                    if (item.Status.toLowerCase() === 'ocupado') {
+                    const statusAtual = item.Status.toLowerCase();
+                    const horaInt = parseInt(item.Hora.split(':')[0]);
+
+                    if (statusAtual === 'ocupado') {
                         if (!blocoOcupado) {
                             blocoOcupado = { data: item.Data, inicio: item.Hora, fim: item.Hora, status: "Ocupado" };
                         } else {
-                            blocoOcupado.fim = item.Hora;
+                            const horaAnterior = parseInt(blocoOcupado.fim.split(':')[0]);
+                            
+                            // QUEBRA O BLOCO SE:
+                            // 1. A diferença for maior que 1 hora (intervalo livre no meio)
+                            // 2. Passar das 12h vindo da manhã (trava do almoço)
+                            if ((horaInt - horaAnterior > 1) || (horaInt >= 13 && horaAnterior <= 12)) {
+                                itensProcessados.push(blocoOcupado);
+                                blocoOcupado = { data: item.Data, inicio: item.Hora, fim: item.Hora, status: "Ocupado" };
+                            } else {
+                                blocoOcupado.fim = item.Hora;
+                            }
                         }
                     } else {
                         if (blocoOcupado) {
