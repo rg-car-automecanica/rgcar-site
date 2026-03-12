@@ -1,1 +1,87 @@
-[]
+[
+    {
+        "Data": "09/03/2026",
+        "Hora": "13:00",
+        "Status": "Ocupado"
+    },
+    {
+        "Data": "09/03/2026",
+        "Hora": "14:00",
+        "Status": "Ocupado"
+    },
+    {
+        "Data": "09/03/2026",
+        "Hora": "15:00",
+        "Status": "Ocupado"
+    },
+    {
+        "Data": "09/03/2026",
+        "Hora": "16:00",
+        "Status": "Ocupado"
+    },
+    {
+        "Data": "09/03/2026",
+        "Hora": "17:00",
+        "Status": "Ocupado"
+    },
+    {
+        "Data": "09/03/2026",
+        "Hora": "18:00",
+        "Status": "Ocupado"
+    },
+    {
+        "Data": "10/03/2026",
+        "Hora": "08:00",
+        "Status": "Ocupado"
+    },
+    {
+        "Data": "10/03/2026",
+        "Hora": "09:00",
+        "Status": "Ocupado"
+    },
+    {
+        "Data": "10/03/2026",
+        "Hora": "10:00",
+        "Status": "Ocupado"
+    },
+    {
+        "Data": "10/03/2026",
+        "Hora": "11:00",
+        "Status": "Ocupado"
+    },
+    {
+        "Data": "10/03/2026",
+        "Hora": "12:00",
+        "Status": "Ocupado"
+    },
+    {
+        "Data": "10/03/2026",
+        "Hora": "14:00",
+        "Status": "Ocupado"
+    },
+    {
+        "Data": "10/03/2026",
+        "Hora": "16:00",
+        "Status": "Ocupado"
+    },
+    {
+        "Data": "12/03/2026",
+        "Hora": "10:",
+        "Status": "Ocupado"
+    },
+    {
+        "Data": "12/03/2026",
+        "Hora": "08:00",
+        "Status": "Ocupado"
+    },
+    {
+        "Data": "12/03/2026",
+        "Hora": "12:00",
+        "Status": "Ocupado"
+    },
+    {
+        "Data": "12/03/2026",
+        "Hora": "14:00",
+        "Status": "Ocupado"
+    }
+]
