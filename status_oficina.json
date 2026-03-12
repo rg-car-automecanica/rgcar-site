@@ -66,7 +66,7 @@
     },
     {
         "Data": "12/03/2026",
-        "Hora": "10:",
+        "Hora": "10:00",
         "Status": "Ocupado"
     },
     {
@@ -94,4 +94,5 @@
         "Hora": "18:00",
         "Status": "Ocupado"
     }
+
 ]
