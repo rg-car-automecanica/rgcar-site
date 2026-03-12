@@ -158,19 +158,16 @@
                 const dados = await response.json();
                 
                 const agora = new Date();
-                const diaSemana = agora.getDay(); // 0 = Domingo, 6 = Sábado
+                const diaSemana = agora.getDay(); 
                 const horaAtual = agora.getHours();
                 let dataParaExibir = new Date();
                 let textoTitulo = "Agenda de Hoje";
 
-                // REGRA PARA SÁBADO APÓS 12H OU DOMINGO -> MOSTRAR SEGUNDA-FEIRA
                 if ((diaSemana === 6 && horaAtual >= 12) || diaSemana === 0) {
                     let diasParaSomar = (diaSemana === 6) ? 2 : 1;
                     dataParaExibir.setDate(agora.getDate() + diasParaSomar);
                     textoTitulo = "Agenda de Segunda";
-                } 
-                // REGRA PARA DIAS ÚTEIS APÓS AS 18H -> MOSTRAR AMANHÃ
-                else if (horaAtual >= 18) {
+                } else if (horaAtual >= 18) {
                     dataParaExibir.setDate(agora.getDate() + 1);
                     textoTitulo = "Agenda de Amanhã";
                 }
@@ -191,19 +188,46 @@
 
                 horariosFiltrados.sort((a, b) => a.Hora.localeCompare(b.Hora));
 
-                horariosFiltrados.forEach(item => {
-                    const statusClass = item.Status.toLowerCase();
+                // LÓGICA DE INTELIGÊNCIA: Agrupar blocos OCUPADOS
+                const itensProcessados = [];
+                let blocoOcupado = null;
+
+                horariosFiltrados.forEach((item, index) => {
+                    if (item.Status.toLowerCase() === 'ocupado') {
+                        if (!blocoOcupado) {
+                            blocoOcupado = { data: item.Data, inicio: item.Hora, fim: item.Hora, status: "Ocupado" };
+                        } else {
+                            blocoOcupado.fim = item.Hora;
+                        }
+                    } else {
+                        if (blocoOcupado) {
+                            itensProcessados.push(blocoOcupado);
+                            blocoOcupado = null;
+                        }
+                        itensProcessados.push({ data: item.Data, inicio: item.Hora, fim: null, status: item.Status });
+                    }
+                });
+                if (blocoOcupado) itensProcessados.push(blocoOcupado);
+
+                // Renderização
+                itensProcessados.forEach(item => {
+                    const statusClass = item.status.toLowerCase();
+                    const exibicaoHora = item.fim && item.inicio !== item.fim 
+                        ? `${item.inicio} às ${item.fim}` 
+                        : item.inicio;
+
                     const div = document.createElement('div');
                     div.className = 'p-6 flex justify-between items-center hover:bg-white/[0.02] transition-all';
                     div.innerHTML = `
                         <div class="flex flex-col">
-                            <span class="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-1">${item.Data}</span>
-                            <span class="text-white text-xl font-black">${item.Hora}</span>
+                            <span class="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-1">${item.data}</span>
+                            <span class="text-white text-xl font-black">${exibicaoHora}</span>
                         </div>
-                        <div class="status-pill bg-${statusClass}">${item.Status}</div>
+                        <div class="status-pill bg-${statusClass}">${item.status}</div>
                     `;
                     container.appendChild(div);
                 });
+
             } catch (error) {
                 document.getElementById('lista-horarios').innerHTML = '<div class="p-10 text-center text-zinc-600 font-bold text-xs tracking-widest">ERRO AO SINCRONIZAR</div>';
             }
@@ -235,7 +259,6 @@
         window.onload = () => {
             carregarAgenda();
             atualizarStatusOficina();
-            // Atualiza agenda a cada 10 segundos e status da oficina a cada 1 minuto
             setInterval(carregarAgenda, 10000);
             setInterval(atualizarStatusOficina, 60000);
         };
