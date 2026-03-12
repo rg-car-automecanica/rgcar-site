@@ -65,7 +65,7 @@
             border-radius: 999px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            min-width: 80px;
+            min-width: 90px;
             text-align: center;
         }
 
@@ -122,11 +122,7 @@
 
         <div class="list-card">
             <div id="lista-horarios" class="divide-y divide-white/5">
-                <div class="p-10 text-center text-zinc-500">
-                    <i class="fa-solid fa-circle-notch animate-spin text-2xl mb-4"></i>
-                    <p class="uppercase font-bold tracking-widest text-xs">Sincronizando oficina...</p>
                 </div>
-            </div>
         </div>
 
         <div class="mt-10 text-center">
@@ -184,59 +180,28 @@
                     return;
                 }
 
+                // Garante que os horários estão em ordem
                 horariosFiltrados.sort((a, b) => a.Hora.localeCompare(b.Hora));
 
-                // LÓGICA DE INTELIGÊNCIA: Agrupar blocos OCUPADOS respeitando o almoço e intervalos
-                const itensProcessados = [];
-                let blocoOcupado = null;
-
+                // LÓGICA DE INTERVALO: Pega o horário atual e o próximo do JSON
                 horariosFiltrados.forEach((item, index) => {
-                    const statusAtual = item.Status.toLowerCase();
-                    const horaInt = parseInt(item.Hora.split(':')[0]);
+                    // Se não for o último horário da lista, pegamos o próximo como o "Fim"
+                    if (index < horariosFiltrados.length - 1) {
+                        const proximoItem = horariosFiltrados[index + 1];
+                        const exibicaoIntervalo = `${item.Hora} as ${proximoItem.Hora}`;
+                        const statusClass = item.Status.toLowerCase();
 
-                    if (statusAtual === 'ocupado') {
-                        if (!blocoOcupado) {
-                            blocoOcupado = { data: item.Data, inicio: item.Hora, fim: item.Hora, status: "Ocupado" };
-                        } else {
-                            const horaAnterior = parseInt(blocoOcupado.fim.split(':')[0]);
-                            
-                            // QUEBRA O BLOCO SE:
-                            // 1. A diferença for maior que 1 hora (intervalo livre no meio)
-                            // 2. Passar das 12h vindo da manhã (trava do almoço)
-                            if ((horaInt - horaAnterior > 1) || (horaInt >= 13 && horaAnterior <= 12)) {
-                                itensProcessados.push(blocoOcupado);
-                                blocoOcupado = { data: item.Data, inicio: item.Hora, fim: item.Hora, status: "Ocupado" };
-                            } else {
-                                blocoOcupado.fim = item.Hora;
-                            }
-                        }
-                    } else {
-                        if (blocoOcupado) {
-                            itensProcessados.push(blocoOcupado);
-                            blocoOcupado = null;
-                        }
-                        itensProcessados.push({ data: item.Data, inicio: item.Hora, fim: null, status: item.Status });
+                        const div = document.createElement('div');
+                        div.className = 'p-6 flex justify-between items-center hover:bg-white/[0.02] transition-all';
+                        div.innerHTML = `
+                            <div class="flex flex-col">
+                                <span class="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-1">${item.Data}</span>
+                                <span class="text-white text-xl font-black">${exibicaoIntervalo}</span>
+                            </div>
+                            <div class="status-pill bg-${statusClass}">${item.Status}</div>
+                        `;
+                        container.appendChild(div);
                     }
-                });
-                if (blocoOcupado) itensProcessados.push(blocoOcupado);
-
-                // Renderização
-                itensProcessados.forEach(item => {
-                    const statusClass = item.status.toLowerCase();
-                    const exibicaoHora = item.fim && item.inicio !== item.fim 
-                        ? `${item.inicio} às ${item.fim}` 
-                        : item.inicio;
-
-                    const div = document.createElement('div');
-                    div.className = 'p-6 flex justify-between items-center hover:bg-white/[0.02] transition-all';
-                    div.innerHTML = `
-                        <div class="flex flex-col">
-                            <span class="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-1">${item.data}</span>
-                            <span class="text-white text-xl font-black">${exibicaoHora}</span>
-                        </div>
-                        <div class="status-pill bg-${statusClass}">${item.status}</div>
-                    `;
-                    container.appendChild(div);
                 });
 
             } catch (error) {
